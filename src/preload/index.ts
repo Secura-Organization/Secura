@@ -1,11 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { electronAPI as toolkitAPI } from '@electron-toolkit/preload'
 import { Secret } from '../types/vault'
 
 // Custom APIs for renderer
 const api = {}
 
 // Use `contextBridge` APIs to expose Electron APIs to
+
+export interface CustomElectronAPI {
+  onSystemLock: (callback: () => void) => void
+}
+
+const customAPI: CustomElectronAPI = {
+  onSystemLock: (callback) => ipcRenderer.on('system-lock', callback)
+}
+
+const mergedElectronAPI = { ...toolkitAPI, ...customAPI }
+
+contextBridge.exposeInMainWorld('electron', mergedElectronAPI)
 
 contextBridge.exposeInMainWorld('electronAPI', {
   minimize: () => ipcRenderer.send('window-minimize'),

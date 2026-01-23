@@ -1,8 +1,7 @@
-import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
   interface Window {
-    electron: ElectronAPI
+    electron: typeof import('../preload').mergedElectronAPI
     api: unknown
     vault: {
       unlock: (password: string) => Promise<{ key: Buffer } | null>
