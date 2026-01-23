@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Secura Design System
+   A dark-first, security-focused aesthetic
+   Inspired by Linear, 1Password, Raycast
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    /* Light mode (optional, dark is primary) */
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 190 70% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 25% 20%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 190 60% 94%;
+    --accent-foreground: 190 70% 30%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 60% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 90% 50%;
+    --warning-foreground: 38 90% 10%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 190 70% 42%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar */
+    --sidebar-background: 220 20% 95%;
+    --sidebar-foreground: 220 15% 30%;
+    --sidebar-primary: 190 70% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 190 60% 94%;
+    --sidebar-accent-foreground: 190 70% 30%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 190 70% 42%;
+
+    /* Custom tokens */
+    --surface: 220 20% 99%;
+    --surface-elevated: 0 0% 100%;
+    --glow-primary: 190 70% 42%;
+  }
+
+  .dark {
+    /* Deep charcoal palette */
+    --background: 225 25% 8%;
+    --foreground: 210 20% 92%;
+
+    --card: 225 22% 11%;
+    --card-foreground: 210 20% 92%;
+
+    --popover: 225 22% 11%;
+    --popover-foreground: 210 20% 92%;
+
+    /* Teal-blue primary for trust/security */
+    --primary: 185 65% 50%;
+    --primary-foreground: 225 25% 8%;
+
+    --secondary: 225 18% 16%;
+    --secondary-foreground: 210 15% 75%;
+
+    --muted: 225 18% 14%;
+    --muted-foreground: 215 12% 50%;
+
+    --accent: 225 18% 18%;
+    --accent-foreground: 185 65% 55%;
+
+    --destructive: 0 55% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 45%;
+    --success-foreground: 152 55% 10%;
+
+    --warning: 38 85% 55%;
+    --warning-foreground: 38 85% 10%;
+
+    --border: 225 15% 18%;
+    --input: 225 15% 18%;
+    --ring: 185 65% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 225 25% 6%;
+    --sidebar-foreground: 210 15% 70%;
+    --sidebar-primary: 185 65% 50%;
+    --sidebar-primary-foreground: 225 25% 8%;
+    --sidebar-accent: 225 18% 14%;
+    --sidebar-accent-foreground: 185 65% 55%;
+    --sidebar-border: 225 15% 14%;
+    --sidebar-ring: 185 65% 50%;
+
+    /* Custom tokens */
+    --surface: 225 22% 10%;
+    --surface-elevated: 225 20% 13%;
+    --glow-primary: 185 65% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Monospace for secrets */
+  .font-mono {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
+  }
+}
+
+@layer components {
+  /* Focus ring utility */
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Glow effect for primary elements */
+  .glow-primary {
+    box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.4);
+  }
+
+  /* Subtle card elevation */
+  .card-elevated {
+    @apply bg-card border border-border;
+    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.04),
+                0 4px 8px 0 hsl(var(--foreground) / 0.02);
+  }
+
+  /* Secret field styling */
+  .secret-field {
+    @apply font-mono text-sm tracking-wide bg-muted px-3 py-2 rounded-md;
+  }
+
+  /* Masked secret dots */
+  .secret-masked {
+    @apply font-mono tracking-[0.25em] text-muted-foreground;
+  }
+
+  /* Sidebar item hover */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150;
+    @apply text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground;
+  }
+
+  .sidebar-item-active {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+  }
+
+  /* Security badge */
+  .security-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-md;
+    @apply bg-success/10 text-success;
+  }
+
+  /* Warning badge */
+  .warning-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md;
+    @apply bg-warning/15 text-warning border border-warning/20;
+  }
+
+  /* Input security styling */
+  .input-secure {
+    @apply font-mono bg-muted border-border focus:border-primary focus:ring-1 focus:ring-primary/30;
+  }
+
+  /* Button variants will be in button.tsx */
+}
+
+@layer utilities {
+  /* Smooth transitions */
+  .transition-fast {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom scrollbar for dark theme */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
+  }
+}
