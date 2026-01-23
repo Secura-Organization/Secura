@@ -1,6 +1,6 @@
 # Contributing to Secura Vault
 
-First off, thank you for considering contributing! 🎉  
+First off, thank you for considering contributing!  
 We welcome contributions of any kind: bug fixes, new features, documentation improvements, UI enhancements, or security suggestions.
 
 ---
