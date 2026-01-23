@@ -36,16 +36,16 @@ Secura is an Electron-based secure vault application for managing passwords and 
 
 ```mermaid
 flowchart LR
-  MainProcess(Main Process - Electron) -->|IPC Channels| VaultModules[Vault Backend]
-  MainProcess -->|Preload Load| Preload[Preload Script]
-  Preload -->|Exposed APIs| Renderer[Renderer Process (React)]
+  MainProcess["Main Process - Electron"] -->|IPC Channels| VaultModules["Vault Backend"]
+  MainProcess -->|Preload Load| Preload["Preload Script"]
+  Preload -->|Exposed APIs| Renderer["Renderer Process (React)"]
   Renderer -->|window.vault.*| VaultModules
   Renderer -->|window.electronAPI| MainProcess
 ```
 
 ---
 
-## Architecture
+## Core flow:
 1. User enters master password
 2. Renderer calls vault.unlock
 3. Main process invokes unlockVault
