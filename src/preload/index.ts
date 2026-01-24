@@ -29,7 +29,8 @@ contextBridge.exposeInMainWorld('vault', {
   editSecret: (password: string, secret: Secret) =>
     ipcRenderer.invoke('vault:editSecret', password, secret) as Promise<void>,
   deleteSecret: (password: string, secretId: string) =>
-    ipcRenderer.invoke('vault:deleteSecret', password, secretId) as Promise<void>
+    ipcRenderer.invoke('vault:deleteSecret', password, secretId) as Promise<void>,
+  downloadVault: () => ipcRenderer.invoke('vault:download') as Promise<void>
 })
 
 contextBridge.exposeInMainWorld('settings', {

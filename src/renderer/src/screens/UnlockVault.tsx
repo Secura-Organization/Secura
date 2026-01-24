@@ -5,6 +5,7 @@ import { Input } from '../components/ui/input'
 import { VaultLogo } from '../components/VaultLogo'
 import { useNavigate } from 'react-router-dom'
 import { useMasterPasswordStore } from '../stores/masterPasswordStore'
+import { useSettingsStore } from '../stores/settingsStore'
 
 export function UnlockScreen(): JSX.Element {
   //use dark mode
@@ -118,7 +119,9 @@ export function UnlockScreen(): JSX.Element {
         <div className="mt-4 flex justify-center">
           <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60">
             <Lock size={12} />
-            <span>Auto-locks after 5 minutes of inactivity</span>
+            <span>
+              Auto-locks after {useSettingsStore.getState().autoLockMinutes} minutes of inactivity
+            </span>
           </div>
         </div>
       </div>

@@ -188,7 +188,10 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
             </button>
 
             {/* Export Vault */}
-            <button className="card-elevated rounded-lg p-4 w-full hover:bg-muted/30 transition-fast">
+            <button
+              className="card-elevated rounded-lg p-4 w-full hover:bg-muted/30 transition-fast"
+              onClick={async () => await window.vault.downloadVault()}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-muted rounded-lg">
@@ -217,10 +220,11 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
               <div>
                 <h3 className="text-sm font-medium mb-2">Security Model</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Secura uses AES-256-GCM to encrypt all your secrets locally. Your master password
-                  never leaves your device. Encryption keys are derived on your device using
-                  Argon2id with SHA-256 and 310,000 iterations. All data is encrypted before being
-                  stored, ensuring your information stays secure and private.
+                  Secura encrypts all secrets locally using AES-256-GCM. Your master password never
+                  leaves your device. Encryption keys are derived locally using Argon2id with strong
+                  memory-hard parameters and a unique salt, making brute-force and GPU attacks
+                  impractical. All data is encrypted before being written to disk, ensuring your
+                  information remains private and secure at all times.
                 </p>
               </div>
               <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">

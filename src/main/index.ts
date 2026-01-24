@@ -91,6 +91,9 @@ ipcMain.handle('vault:editSecret', async (_event, password: string, secret) =>
 ipcMain.handle('vault:deleteSecret', async (_event, password: string, secretId: string) =>
   vaultStore.deleteSecret(password, secretId)
 )
+ipcMain.handle('vault:download', async () => {
+  return vaultStore.downloadVault()
+})
 
 // --- Settings IPC ---
 ipcMain.handle('settings:get', () => {

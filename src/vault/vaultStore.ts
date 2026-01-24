@@ -128,5 +128,16 @@ export const vaultStore = {
     vault.secretsEncrypted = encryptSecrets(key, filtered)
     vault.secrets = []
     writeVaultFile(vault)
+  },
+
+  async downloadVault() {
+    const desktop = app.getPath('desktop')
+    const destination = path.join(desktop, 'vault.json')
+
+    if (!fs.existsSync(VAULT_PATH)) {
+      throw new Error('Vault file does not exist')
+    }
+
+    fs.copyFileSync(VAULT_PATH, destination)
   }
 }
