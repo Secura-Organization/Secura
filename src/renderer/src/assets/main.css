@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,8 +8,6 @@
    A dark-first, security-focused aesthetic
    Inspired by Linear, 1Password, Raycast
 */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
@@ -125,7 +125,12 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
   }
 
   /* Monospace for secrets */
@@ -148,8 +153,9 @@
   /* Subtle card elevation */
   .card-elevated {
     @apply bg-card border border-border;
-    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.04),
-                0 4px 8px 0 hsl(var(--foreground) / 0.02);
+    box-shadow:
+      0 1px 3px 0 hsl(var(--foreground) / 0.04),
+      0 4px 8px 0 hsl(var(--foreground) / 0.02);
   }
 
   /* Secret field styling */

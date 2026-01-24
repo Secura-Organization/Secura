@@ -2,82 +2,99 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import { deriveKey } from '../vault/crypto'
 import { VAULT_PATH, VaultData } from '../vault/vaultUnlock'
+import { decryptSecrets, encryptSecrets } from '../vault/vaultStore'
+import { useMasterPasswordStore } from '../renderer/src/stores/masterPasswordStore'
+import { Secret } from '../types/vault'
 
 /**
- * Change master password
- * @param oldPassword The old master password
- * @param newPassword the new master password
- * @returns true if pass is changed, false otherwis
+ * Change master password safely
+ * @param sessionKey The current session key (Buffer as base64 string)
+ * @param oldPassword The current password (for verification)
+ * @param newPassword The new password you want
  */
-
 export async function changeMasterPassword(
   oldPassword: string,
   newPassword: string
 ): Promise<boolean> {
   try {
-    // --- 1. Load existing vault
-    if (!fs.existsSync(VAULT_PATH)) return false
-    const data: VaultData = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf-8'))
+    if (!fs.existsSync(VAULT_PATH)) {
+      return false
+    }
 
-    // --- 2. Verify old password
-    const oldKey = await deriveKey(oldPassword, Buffer.from(data.salt, 'base64'))
-    const verifier = Buffer.from(data.verifier, 'base64')
+    const vault: VaultData = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf-8'))
+
+    // Step 1: Derive key from old password and CURRENT salt
+    const oldSalt = Buffer.from(vault.salt, 'base64')
+    const oldKey = await deriveKey(oldPassword, oldSalt)
+
+    // Step 2: Verify old password using verifier
 
     try {
+      const verifier = Buffer.from(vault.verifier, 'base64')
       const iv = verifier.subarray(0, 12)
       const tag = verifier.subarray(verifier.length - 16)
       const encrypted = verifier.subarray(12, verifier.length - 16)
 
       const decipher = crypto.createDecipheriv('aes-256-gcm', oldKey, iv)
       decipher.setAuthTag(tag)
-      const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()])
+      const decryptedVerifier = Buffer.concat([decipher.update(encrypted), decipher.final()])
 
-      if (decrypted.toString() !== 'vault-check') return false
+      if (decryptedVerifier.toString() !== 'vault-check') {
+        return false
+      }
     } catch {
       return false
     }
 
-    // --- 3. Derive new key
+    // Step 2: Use session key for decryption
+
+    let secrets: Secret[] = []
+    // Convert comma-separated sessionKey string to Buffer
+
+    if (vault.secretsEncrypted) {
+      try {
+        secrets = decryptSecrets(oldKey, vault.secretsEncrypted)
+      } catch {
+        return false
+      }
+    }
+
+    // Step 3: Generate NEW salt and derive NEW key
+
+    //create new key same as in unlock mechanism
     const newSalt = crypto.randomBytes(16)
     const newKey = await deriveKey(newPassword, newSalt)
+    useMasterPasswordStore.getState().setSessionKey(newKey.toString('base64'))
+
+    // Step 4: Create new verifier with new key
+
     const newIv = crypto.randomBytes(12)
-
-    // --- 4. Encrypt verifier with new key
     const cipher = crypto.createCipheriv('aes-256-gcm', newKey, newIv)
-    const newEncrypted = Buffer.concat([cipher.update('vault-check', 'utf-8'), cipher.final()])
+    const newEncryptedVerifier = Buffer.concat([
+      cipher.update('vault-check', 'utf-8'),
+      cipher.final()
+    ])
     const newTag = cipher.getAuthTag()
-    const newVerifier = Buffer.concat([newIv, newEncrypted, newTag])
+    const newVerifier = Buffer.concat([newIv, newEncryptedVerifier, newTag])
 
-    // --- 5. Re-encrypt secrets if already stored encrypted
-    let secretsEncrypted: string | undefined
-    if (data.secretsEncrypted) {
-      const oldSecretsBuffer = Buffer.from(data.secretsEncrypted, 'base64')
-      const oldDecipher = crypto.createDecipheriv(
-        'aes-256-gcm',
-        oldKey,
-        oldSecretsBuffer.subarray(0, 12)
-      )
-      oldDecipher.setAuthTag(oldSecretsBuffer.subarray(oldSecretsBuffer.length - 16))
-      const decryptedSecrets = Buffer.concat([
-        oldDecipher.update(oldSecretsBuffer.subarray(12, oldSecretsBuffer.length - 16)),
-        oldDecipher.final()
-      ])
+    // Step 5: Encrypt secrets with NEW key
 
-      const newIv = crypto.randomBytes(12)
-      const cipher = crypto.createCipheriv('aes-256-gcm', newKey, newIv)
-      const encrypted = Buffer.concat([cipher.update(decryptedSecrets), cipher.final()])
-      const tag = cipher.getAuthTag()
-      secretsEncrypted = Buffer.concat([newIv, encrypted, tag]).toString('base64')
+    let newSecretsEncrypted: string | undefined = undefined
+
+    if (secrets.length > 0) {
+      newSecretsEncrypted = encryptSecrets(newKey, secrets)
     }
 
-    // --- 6. Save updated vault
-    const updatedVault: VaultData = {
-      salt: newSalt.toString('base64'),
-      verifier: newVerifier.toString('base64'),
-      secrets: data.secrets, // keep plaintext secrets if any
-      secretsEncrypted
-    }
-    fs.writeFileSync(VAULT_PATH, JSON.stringify(updatedVault, null, 2), 'utf-8')
+    // Step 6: Update vault with new credentials
+
+    vault.salt = newSalt.toString('base64')
+    vault.verifier = newVerifier.toString('base64')
+    vault.secrets = []
+    vault.secretsEncrypted = newSecretsEncrypted
+
+    // Step 7: Save to disk
+    fs.writeFileSync(VAULT_PATH, JSON.stringify(vault, null, 2), 'utf-8')
+
     return true
   } catch {
     return false

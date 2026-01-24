@@ -105,8 +105,8 @@ export function Sidebar({
         </button>
 
         <button
-          onClick={() => {
-            useMasterPasswordStore.getState().clearSession()
+          onClick={async () => {
+            await useMasterPasswordStore.getState().clearSession()
             navigate('/unlock')
           }}
           className="sidebar-item w-full justify-start gap-3 text-destructive hover:text-destructive/80"

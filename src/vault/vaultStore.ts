@@ -2,7 +2,6 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 import { app } from 'electron'
-import { deriveKey } from './crypto'
 import type { Secret } from '../types/vault'
 import type { VaultData } from './vaultUnlock'
 
@@ -26,7 +25,7 @@ function writeVaultFile(data: VaultData): void {
 /**
  * Encrypts data with AES-256-GCM using the master key
  */
-function encryptSecrets(key: Buffer, secrets: Secret[]): string {
+export function encryptSecrets(key: Buffer, secrets: Secret[]): string {
   const iv = crypto.randomBytes(12)
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
   const encrypted = Buffer.concat([cipher.update(JSON.stringify(secrets), 'utf-8'), cipher.final()])
@@ -37,7 +36,7 @@ function encryptSecrets(key: Buffer, secrets: Secret[]): string {
 /**
  * Decrypts secrets from AES-256-GCM
  */
-function decryptSecrets(key: Buffer, encryptedData: string): Secret[] {
+export function decryptSecrets(key: Buffer, encryptedData: string): Secret[] {
   const data = Buffer.from(encryptedData, 'base64')
   const iv = data.subarray(0, 12)
   const tag = data.subarray(data.length - 16)
@@ -58,7 +57,7 @@ export const vaultStore = {
    */
   async getSecrets(password: string): Promise<Secret[]> {
     const vault = readVaultFile()
-    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
 
     if (!vault.secretsEncrypted) return vault.secrets || []
 
@@ -73,7 +72,7 @@ export const vaultStore = {
     secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>
   ): Promise<Secret> {
     const vault = readVaultFile()
-    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
 
     const newSecret: Secret = {
       ...secret,
@@ -99,7 +98,7 @@ export const vaultStore = {
    */
   async editSecret(password: string, updatedSecret: Secret) {
     const vault = readVaultFile()
-    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)
@@ -119,7 +118,7 @@ export const vaultStore = {
    */
   async deleteSecret(password: string, secretId: string) {
     const vault = readVaultFile()
-    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)

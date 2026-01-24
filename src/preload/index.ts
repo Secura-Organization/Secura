@@ -1,7 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI as toolkitAPI } from '@electron-toolkit/preload'
 import { Secret } from '../types/vault'
-import { changeMasterPassword } from '../settings/changeMasterPass'
 
 export interface CustomElectronAPI {
   onSystemLock: (callback: () => void) => void
