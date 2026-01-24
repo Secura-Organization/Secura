@@ -19,14 +19,14 @@ export interface VaultData {
  * @param password The master password entered by the user
  * @returns true if unlock or setup succeeds, false otherwise
  */
-export function unlockVault(password: string): { key: Buffer } | null {
+export async function unlockVault(password: string): Promise<{ key: Buffer } | null> {
   // --- First-time setup
   if (!fs.existsSync(VAULT_PATH)) {
     // console.log('Vault file not found. Creating a new vault...')
 
     try {
       const salt = crypto.randomBytes(16)
-      const key = deriveKey(password, salt)
+      const key = await deriveKey(password, salt)
       const iv = crypto.randomBytes(12)
 
       // Encrypt a verifier string
@@ -54,7 +54,7 @@ export function unlockVault(password: string): { key: Buffer } | null {
   try {
     const data: VaultData = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf-8'))
     const salt = Buffer.from(data.salt, 'base64')
-    const key = deriveKey(password, salt)
+    const key = await deriveKey(password, salt)
     const verifier = Buffer.from(data.verifier, 'base64')
 
     const iv = verifier.subarray(0, 12)

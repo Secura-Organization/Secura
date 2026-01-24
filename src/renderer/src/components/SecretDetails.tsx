@@ -91,8 +91,8 @@ export function SecretDetails({ secret, onEdit, onDelete }: SecretDetailsProps):
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
-                window.vault.deleteSecret(
+              onClick={async () => {
+                await window.vault.deleteSecret(
                   useMasterPasswordStore.getState().sessionKey as string,
                   secret.id
                 )

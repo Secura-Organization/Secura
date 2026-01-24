@@ -98,7 +98,7 @@ npm run package
 ---
 
 ## Vault Backend
-- `crypto.ts` – Key derivation via PBKDF2 (310k iterations)
+- `crypto.ts` – Key derivation via Argon2id (310k iterations)
 - `vaultUnlock.ts` – Initial vault setup & unlock logic
 - `vaultStore.ts` – CRUD operations: read, write, encrypt, decrypt secrets
 

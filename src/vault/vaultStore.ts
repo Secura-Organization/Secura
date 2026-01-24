@@ -56,9 +56,9 @@ export const vaultStore = {
   /**
    * Get all secrets
    */
-  getSecrets(password: string): Secret[] {
+  async getSecrets(password: string): Promise<Secret[]> {
     const vault = readVaultFile()
-    const key = deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
 
     if (!vault.secretsEncrypted) return vault.secrets || []
 
@@ -68,9 +68,12 @@ export const vaultStore = {
   /**
    * Add a new secret
    */
-  addSecret(password: string, secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>): Secret {
+  async addSecret(
+    password: string,
+    secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>
+  ): Promise<Secret> {
     const vault = readVaultFile()
-    const key = deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
 
     const newSecret: Secret = {
       ...secret,
@@ -94,9 +97,9 @@ export const vaultStore = {
   /**
    * Edit an existing secret
    */
-  editSecret(password: string, updatedSecret: Secret) {
+  async editSecret(password: string, updatedSecret: Secret) {
     const vault = readVaultFile()
-    const key = deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)
@@ -114,9 +117,9 @@ export const vaultStore = {
   /**
    * Delete a secret
    */
-  deleteSecret(password: string, secretId: string) {
+  async deleteSecret(password: string, secretId: string) {
     const vault = readVaultFile()
-    const key = deriveKey(password, Buffer.from(vault.salt, 'base64'))
+    const key = await deriveKey(password, Buffer.from(vault.salt, 'base64'))
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)

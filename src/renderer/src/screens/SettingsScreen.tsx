@@ -165,7 +165,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
                 <h3 className="text-sm font-medium mb-2">Security Model</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Secura uses AES-256-GCM to encrypt all your secrets locally. Your master password
-                  never leaves your device. Encryption keys are derived on your device using PBKDF2
+                  never leaves your device. Encryption keys are derived on your device using Argon2id
                   with SHA-256 and 310,000 iterations. All data is encrypted before being stored,
                   ensuring your information stays secure and private.
                 </p>

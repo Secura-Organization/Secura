@@ -1,11 +1,16 @@
-import * as crypto from 'crypto'
+import argon2 from 'argon2'
 
-export function deriveKey(password: string, salt: Buffer): Buffer {
-  return crypto.pbkdf2Sync(
-    password,
+/**
+ * Derive a 256-bit key from a password using Argon2id
+ */
+export async function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
+  return argon2.hash(password, {
+    type: argon2.argon2id,
     salt,
-    310000, // slows down attackers
-    32, // 256-bit key
-    'sha256'
-  )
+    hashLength: 32,
+    raw: true,
+    memoryCost: 2 ** 16,
+    timeCost: 3,
+    parallelism: 1
+  }) as Promise<Buffer>
 }
