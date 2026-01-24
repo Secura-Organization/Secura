@@ -15,6 +15,7 @@ declare global {
     settings: {
       get: () => Promise<AppSettings>
       set: (settings: AppSettings) => Promise<void>
+      changeMasterPassword: (oldPass: string, newPass: string) => Promise<boolean>
     }
   }
 }

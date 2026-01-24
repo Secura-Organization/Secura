@@ -5,6 +5,7 @@ import icon from '../../resources/icons/icon.png?asset'
 import { unlockVault } from '../vault/vaultUnlock'
 import { vaultStore } from '../vault/vaultStore'
 import { loadSettings, saveSettings } from '../settings/settings'
+import { changeMasterPassword } from '../settings/changeMasterPass'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -94,12 +95,16 @@ ipcMain.handle('vault:deleteSecret', async (_event, password: string, secretId: 
 // --- Settings IPC ---
 ipcMain.handle('settings:get', () => {
   const settings = loadSettings()
-  console.log('Main process returning settings:', settings)
   return settings
 })
 
 ipcMain.handle('settings:set', (_, settings) => {
   saveSettings(settings)
+})
+
+ipcMain.handle('settings:changeMasterPass', async (_, oldPass: string, newPass: string) => {
+  const result = await changeMasterPassword(oldPass, newPass)
+  return result
 })
 
 // --- App lifecycle ---

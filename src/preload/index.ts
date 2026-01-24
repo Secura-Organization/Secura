@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI as toolkitAPI } from '@electron-toolkit/preload'
 import { Secret } from '../types/vault'
+import { changeMasterPassword } from '../settings/changeMasterPass'
 
 export interface CustomElectronAPI {
   onSystemLock: (callback: () => void) => void
@@ -34,5 +35,7 @@ contextBridge.exposeInMainWorld('vault', {
 
 contextBridge.exposeInMainWorld('settings', {
   get: () => ipcRenderer.invoke('settings:get'),
-  set: (settings) => ipcRenderer.invoke('settings:set', settings)
+  set: (settings) => ipcRenderer.invoke('settings:set', settings),
+  changeMasterPassword: (oldPass: string, newPass: string): Promise<boolean> =>
+    ipcRenderer.invoke('settings:changeMasterPass', oldPass, newPass)
 })

@@ -1,5 +1,5 @@
 import { JSX, useState } from 'react'
-import { Eye, EyeOff, Fingerprint, Lock, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Lock, AlertCircle } from 'lucide-react'
 import { Button } from '../components/ui/button/button'
 import { Input } from '../components/ui/input'
 import { VaultLogo } from '../components/VaultLogo'
@@ -103,14 +103,6 @@ export function UnlockScreen(): JSX.Element {
               )}
             </Button>
           </form>
-
-          {/* Biometric Option */}
-          <div className="flex items-center justify-center">
-            <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 px-4 rounded-lg hover:bg-muted">
-              <Fingerprint size={18} />
-              <span>Use Touch ID</span>
-            </button>
-          </div>
         </div>
 
         {/* Security Notice */}

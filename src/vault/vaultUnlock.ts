@@ -5,7 +5,7 @@ import * as path from 'path'
 import { deriveKey } from './crypto'
 import type { Secret } from '../types/vault'
 
-const VAULT_PATH = path.join(app.getPath('userData'), 'vault.json')
+export const VAULT_PATH = path.join(app.getPath('userData'), 'vault.json')
 
 export interface VaultData {
   salt: string // base64
@@ -17,7 +17,7 @@ export interface VaultData {
 /**
  * Unlocks the vault if it exists, or sets up a new vault if missing.
  * @param password The master password entered by the user
- * @returns true if unlock or setup succeeds, false otherwise
+ * @returns key if unlock or setup succeeds, null otherwise
  */
 export async function unlockVault(password: string): Promise<{ key: Buffer } | null> {
   // --- First-time setup

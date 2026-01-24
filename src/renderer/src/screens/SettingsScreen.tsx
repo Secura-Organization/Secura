@@ -6,7 +6,9 @@ import {
   Download,
   Shield,
   ChevronRight,
-  Info
+  Info,
+  EyeOff,
+  Eye
 } from 'lucide-react'
 import { Button } from '../components/ui/button/button'
 import { Label } from '../components/ui/label'
@@ -17,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '../components/ui/select'
-import { JSX } from 'react'
+import { JSX, useState } from 'react'
 import { useSettingsStore } from '../stores/settingsStore'
+import { Input } from '../components/ui/input'
 
 interface SettingsScreenProps {
   onBack: () => void
@@ -26,6 +29,45 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
   const { autoLockMinutes, clipboardSeconds, update } = useSettingsStore()
+
+  const [showChangePassModal, setShowChangePassModal] = useState(false)
+  const [oldPass, setOldPass] = useState('')
+  const [newPass, setNewPass] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [msg, setMsg] = useState('')
+  const [valid, setValid] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [showOldPass, setShowOldPass] = useState(false)
+  const [showNewPass, setShowNewPass] = useState(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
+
+  const handleChangePassword = async (): Promise<void> => {
+    if (newPass !== confirmPass) {
+      setValid(false)
+      setMsg("Passwords don't match")
+      return
+    }
+    setMsg('')
+    setLoading(true)
+    try {
+      const success = await window.settings.changeMasterPassword(oldPass, newPass)
+      if (success) {
+        setShowChangePassModal(false)
+        setOldPass('')
+        setNewPass('')
+        setConfirmPass('')
+        setMsg('Password changed successfully!')
+      } else {
+        setValid(false)
+        setMsg('Old password is incorrect')
+      }
+    } catch {
+      setValid(false)
+      setMsg('Failed to change password')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -117,7 +159,10 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
             </div>
 
             {/* Change Master Password */}
-            <button className="card-elevated rounded-lg p-4 w-full hover:bg-muted/30 transition-fast">
+            <button
+              className="card-elevated rounded-lg p-4 w-full hover:bg-muted/30 transition-fast"
+              onClick={() => setShowChangePassModal(true)}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-muted rounded-lg">
@@ -165,9 +210,9 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
                 <h3 className="text-sm font-medium mb-2">Security Model</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Secura uses AES-256-GCM to encrypt all your secrets locally. Your master password
-                  never leaves your device. Encryption keys are derived on your device using Argon2id
-                  with SHA-256 and 310,000 iterations. All data is encrypted before being stored,
-                  ensuring your information stays secure and private.
+                  never leaves your device. Encryption keys are derived on your device using
+                  Argon2id with SHA-256 and 310,000 iterations. All data is encrypted before being
+                  stored, ensuring your information stays secure and private.
                 </p>
               </div>
               <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
@@ -178,6 +223,91 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
           </section>
         </div>
       </div>
+      {/* --- Overlay Modal --- */}
+      {showChangePassModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background card-elevated rounded-lg p-6 w-96 space-y-4">
+            <h2 className="text-lg font-semibold">Change Master Password</h2>
+
+            <div className="space-y-2 relative">
+              <Label>Old Password</Label>
+              <div className="relative">
+                <Input
+                  type={showOldPass ? 'text' : 'password'}
+                  className="input w-full pr-10"
+                  value={oldPass}
+                  onChange={(e) => setOldPass(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowOldPass(!showOldPass)}
+                >
+                  {showOldPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 relative">
+              <Label>New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showNewPass ? 'text' : 'password'}
+                  className="input w-full pr-10"
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowNewPass(!showNewPass)}
+                >
+                  {showNewPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 relative">
+              <Label>Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPass ? 'text' : 'password'}
+                  className="input w-full pr-10"
+                  value={confirmPass}
+                  onChange={(e) => setConfirmPass(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowConfirmPass(!showConfirmPass)}
+                >
+                  {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {msg && <p className={`text-xs ${valid ? 'text-green-500' : 'text-red-500'}`}>{msg}</p>}
+
+            <div className="flex justify-end gap-2 mt-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowChangePassModal(false)
+                  setOldPass('')
+                  setNewPass('')
+                  setConfirmPass('')
+                  setMsg('')
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleChangePassword} disabled={loading}>
+                {loading ? 'Changing...' : 'Change Password'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
