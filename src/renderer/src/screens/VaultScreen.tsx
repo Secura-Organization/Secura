@@ -6,7 +6,7 @@ import { EmptyDetails } from '../components/EmptyDetails'
 import { SettingsScreen } from './SettingsScreen'
 import { AddEditSecretModal } from '../components/AddEditSecretModal'
 import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog'
-import type { Secret, Category, VaultSettings } from '../../../types/vault'
+import type { Secret, Category } from '../../../types/vault'
 import { useMasterPasswordStore } from '../stores/masterPasswordStore'
 
 const secretTypes: { id: Category; label: string }[] = [
@@ -33,12 +33,6 @@ export function VaultScreen(): JSX.Element {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingSecret, setEditingSecret] = useState<Secret | null>(null)
   const [deletingSecret, setDeletingSecret] = useState<Secret | null>(null)
-  const [settings, setSettings] = useState<VaultSettings>({
-    autoLockTimeout: 5,
-    clipboardTimeout: 15,
-    useOsKeychain: false,
-    biometricEnabled: false
-  })
 
   useEffect(() => {
     const loadSecrets = async (): Promise<void> => {
@@ -171,11 +165,7 @@ export function VaultScreen(): JSX.Element {
           secretCounts={secretCounts}
         />
         <div className="flex-1">
-          <SettingsScreen
-            settings={settings}
-            onSettingsChange={setSettings}
-            onBack={() => setShowSettings(false)}
-          />
+          <SettingsScreen onBack={() => setShowSettings(false)} />
         </div>
       </div>
     )

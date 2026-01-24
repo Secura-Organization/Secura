@@ -1,4 +1,3 @@
-
 declare global {
   interface Window {
     electron: typeof import('../preload').mergedElectronAPI
@@ -12,6 +11,10 @@ declare global {
       ) => Promise<Secret>
       editSecret: (password: string, secret: Secret) => Promise<void>
       deleteSecret: (password: string, secretId: string) => Promise<void>
+    }
+    settings: {
+      get: () => Promise<AppSettings>
+      set: (settings: AppSettings) => Promise<void>
     }
   }
 }

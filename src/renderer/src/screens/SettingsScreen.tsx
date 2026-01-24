@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   Clock,
   Clipboard,
-  Fingerprint,
   Key,
   Download,
   Shield,
@@ -10,7 +9,6 @@ import {
   Info
 } from 'lucide-react'
 import { Button } from '../components/ui/button/button'
-import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
 import {
   Select,
@@ -19,18 +17,15 @@ import {
   SelectTrigger,
   SelectValue
 } from '../components/ui/select'
-import type { VaultSettings } from '../../../types/vault'
+import { JSX } from 'react'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface SettingsScreenProps {
-  settings: VaultSettings
-  onSettingsChange: (settings: VaultSettings) => void
   onBack: () => void
 }
 
-export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsScreenProps) {
-  const updateSetting = <K extends keyof VaultSettings>(key: K, value: VaultSettings[K]) => {
-    onSettingsChange({ ...settings, [key]: value })
-  }
+export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
+  const { autoLockMinutes, clipboardSeconds, update } = useSettingsStore()
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -67,8 +62,8 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
                   </div>
                 </div>
                 <Select
-                  value={String(settings.autoLockTimeout)}
-                  onValueChange={(v) => updateSetting('autoLockTimeout', Number(v))}
+                  value={String(autoLockMinutes)}
+                  onValueChange={(v) => update({ autoLockMinutes: Number(v) })}
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
@@ -99,8 +94,8 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
                   </div>
                 </div>
                 <Select
-                  value={String(settings.clipboardTimeout)}
-                  onValueChange={(v) => updateSetting('clipboardTimeout', Number(v))}
+                  value={String(clipboardSeconds)}
+                  onValueChange={(v) => update({ clipboardSeconds: Number(v) })}
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
@@ -112,27 +107,6 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
                     <SelectItem value="60">1 minute</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-            {/* OS Keychain */}
-            <div className="card-elevated rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-muted rounded-lg">
-                    <Fingerprint size={18} className="text-muted-foreground" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">OS Keychain Integration</Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Use system keychain for biometric unlock
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  checked={settings.useOsKeychain}
-                  onCheckedChange={(v) => updateSetting('useOsKeychain', v)}
-                />
               </div>
             </div>
           </section>

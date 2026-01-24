@@ -2,16 +2,23 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { UnlockScreen } from './screens/UnlockVault'
 import { VaultScreen } from './screens/VaultScreen'
 import { CustomTitleBar } from './components/CustomTitleBar'
-import { JSX } from 'react'
+import { JSX, useEffect } from 'react'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AutoLock } from './components/AutoLockProvider'
 import { SystemLockHandler } from './components/SystemLockHandler'
+import { useSettingsStore } from './stores/settingsStore'
 
 export default function App(): JSX.Element {
+  const { autoLockMinutes, load } = useSettingsStore()
+
+  useEffect(() => {
+    load()
+  }, [load])
+
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <SystemLockHandler />
-      <AutoLock timeoutMs={0.5 * 60 * 1000} />
+      <AutoLock timeoutMs={autoLockMinutes * 60 * 1000} />
       {/* Custom title bar at the top */}
       <CustomTitleBar />
 

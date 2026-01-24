@@ -17,6 +17,7 @@ import { getSecretTypeLabel } from '../utils/secretTypes'
 import type { Secret } from '../../../types/vault'
 import { format } from 'date-fns'
 import { useMasterPasswordStore } from '../stores/masterPasswordStore'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface SecretDetailsProps {
   secret: Secret
@@ -28,7 +29,9 @@ export function SecretDetails({ secret, onEdit, onDelete }: SecretDetailsProps):
   const [revealed, setRevealed] = useState(false)
   const [copied, setCopied] = useState(false)
   const [clipboardWarning, setClipboardWarning] = useState(false)
-  const [countdown, setCountdown] = useState(15)
+
+  const clipboardSeconds = useSettingsStore((state) => state.clipboardSeconds)
+  const [countdown, setCountdown] = useState(clipboardSeconds)
 
   // Clipboard countdown timer
   useEffect(() => {
@@ -38,21 +41,21 @@ export function SecretDetails({ secret, onEdit, onDelete }: SecretDetailsProps):
       setCountdown((prev) => {
         if (prev <= 1) {
           setClipboardWarning(false)
-          return 15
+          return clipboardSeconds
         }
         return prev - 1
       })
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [clipboardWarning])
+  }, [clipboardWarning, clipboardSeconds])
 
   const handleCopy = async (): Promise<void> => {
     await navigator.clipboard.writeText(secret.value)
-    setTimeout(async () => await navigator.clipboard.writeText(''), 15000)
+    setTimeout(async () => await navigator.clipboard.writeText(''), clipboardSeconds * 1000)
     setCopied(true)
     setClipboardWarning(true)
-    setCountdown(15)
+    setCountdown(clipboardSeconds)
 
     setTimeout(() => setCopied(false), 2000)
   }
@@ -126,10 +129,13 @@ export function SecretDetails({ secret, onEdit, onDelete }: SecretDetailsProps):
                 className="shrink-0"
                 onClick={async () => {
                   await navigator.clipboard.writeText(secret.username!)
-                  setTimeout(async () => await navigator.clipboard.writeText(''), 15000)
+                  setTimeout(
+                    async () => await navigator.clipboard.writeText(''),
+                    clipboardSeconds * 1000
+                  )
                   setCopied(true)
                   setClipboardWarning(true)
-                  setCountdown(15)
+                  setCountdown(clipboardSeconds)
 
                   setTimeout(() => setCopied(false), 2000)
                 }}

@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icons/icon.png?asset'
 import { unlockVault } from '../vault/vaultUnlock'
 import { vaultStore } from '../vault/vaultStore'
+import { loadSettings, saveSettings } from '../settings/settings'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -37,14 +38,16 @@ function createWindow(): BrowserWindow {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
+  mainWindow.on('minimize', () => {
+    mainWindow.webContents.send('system-lock')
+  })
+
   // --- System Lock / Unlock Detection ---
   powerMonitor.on('lock-screen', () => {
-    console.log('System locked! Clearing vault session...')
     mainWindow.webContents.send('system-lock') // notify renderer to lock vault
   })
 
   powerMonitor.on('suspend', () => {
-    console.log('System going to sleep! Clearing vault session...')
     mainWindow.webContents.send('system-lock')
   })
 
@@ -87,6 +90,17 @@ ipcMain.handle('vault:editSecret', async (_event, password: string, secret) =>
 ipcMain.handle('vault:deleteSecret', async (_event, password: string, secretId: string) =>
   vaultStore.deleteSecret(password, secretId)
 )
+
+// --- Settings IPC ---
+ipcMain.handle('settings:get', () => {
+  const settings = loadSettings()
+  console.log('Main process returning settings:', settings)
+  return settings
+})
+
+ipcMain.handle('settings:set', (_, settings) => {
+  saveSettings(settings)
+})
 
 // --- App lifecycle ---
 app.whenReady().then(() => {

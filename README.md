@@ -27,7 +27,7 @@ Secura is an Electron-based secure vault application for managing passwords and 
 - Categorized secrets with search and filter  
 - Custom **frameless window** with title bar controls  
 - Radix + Tailwind UI primitives (buttons, inputs, switches, modals)  
-- Auto-lock, clipboard timeout, biometric and OS keychain support  
+- Auto-lock, clipboard timeout
 - React Router-based navigation  
 
 ---

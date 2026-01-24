@@ -28,8 +28,6 @@ export interface Secret {
 export interface VaultSettings {
   autoLockTimeout: number // in minutes
   clipboardTimeout: number // in seconds
-  useOsKeychain: boolean
-  biometricEnabled: boolean
 }
 
 export type ViewMode = 'list' | 'details'
