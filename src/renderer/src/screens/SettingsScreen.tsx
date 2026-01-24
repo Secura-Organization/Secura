@@ -73,7 +73,6 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
                     <SelectItem value="5">5 minutes</SelectItem>
                     <SelectItem value="15">15 minutes</SelectItem>
                     <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="60">1 hour</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -104,7 +103,6 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
                     <SelectItem value="10">10 seconds</SelectItem>
                     <SelectItem value="15">15 seconds</SelectItem>
                     <SelectItem value="30">30 seconds</SelectItem>
-                    <SelectItem value="60">1 minute</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -166,14 +164,15 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
               <div>
                 <h3 className="text-sm font-medium mb-2">Security Model</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Secura uses AES-256-GCM encryption with Argon2id key derivation. Your master
-                  password never leaves your device. All data is encrypted locally before being
-                  stored. We use PBKDF2 with 100,000 iterations as an additional security layer.
+                  Secura uses AES-256-GCM to encrypt all your secrets locally. Your master password
+                  never leaves your device. Encryption keys are derived on your device using PBKDF2
+                  with SHA-256 and 310,000 iterations. All data is encrypted before being stored,
+                  ensuring your information stays secure and private.
                 </p>
               </div>
               <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                 <span>Secura v1.0.0</span>
-                <span>© 2024</span>
+                <span>© {new Date().getFullYear()}</span>
               </div>
             </div>
           </section>
