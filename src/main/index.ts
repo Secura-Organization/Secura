@@ -23,6 +23,24 @@ function createWindow(): BrowserWindow {
     }
   })
 
+  if (!is.dev) {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+        event.preventDefault()
+      }
+
+      if (input.key === 'F12') {
+        event.preventDefault()
+      }
+    })
+  }
+
+  if (!is.dev) {
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools()
+    })
+  }
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })

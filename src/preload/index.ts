@@ -37,6 +37,6 @@ contextBridge.exposeInMainWorld('vault', {
 contextBridge.exposeInMainWorld('settings', {
   get: () => ipcRenderer.invoke('settings:get'),
   set: (settings) => ipcRenderer.invoke('settings:set', settings),
-  changeMasterPassword: (oldPass: string, newPass: string): Promise<boolean> =>
+  changeMasterPassword: (oldPass: string, newPass: string): Promise<{ key: Buffer } | null> =>
     ipcRenderer.invoke('settings:changeMasterPass', oldPass, newPass)
 })

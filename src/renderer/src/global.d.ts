@@ -1,6 +1,9 @@
+import { AppSettings } from '../../settings/settings'
+import { Secret } from '../../types/vault'
+
 declare global {
   interface Window {
-    electron: typeof import('../preload').mergedElectronAPI
+    electron: typeof import('../../preload').mergedElectronAPI
     api: unknown
     vault: {
       unlock: (password: string) => Promise<{ key: Buffer } | null>
@@ -17,7 +20,7 @@ declare global {
     settings: {
       get: () => Promise<AppSettings>
       set: (settings: AppSettings) => Promise<void>
-      changeMasterPassword: (oldPass: string, newPass: string) => Promise<boolean>
+      changeMasterPassword: (oldPass: string, newPass: string) => Promise<{ key: Buffer } | null>
     }
   }
 }

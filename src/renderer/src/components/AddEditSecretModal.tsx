@@ -65,7 +65,7 @@ export function AddEditSecretModal({
   const [name, setName] = useState(() => editingSecret?.name ?? '')
   const [value, setValue] = useState(() => editingSecret?.value ?? '')
   const [username, setUsername] = useState(() => editingSecret?.username ?? '')
-  const [url, setUrl] = useState(() => editingSecret?.url ?? '')
+  const [url] = useState(() => editingSecret?.url ?? '')
   const [notes, setNotes] = useState(() => editingSecret?.notes ?? '')
   const [showValue, setShowValue] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})

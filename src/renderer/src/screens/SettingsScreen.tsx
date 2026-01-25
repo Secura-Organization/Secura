@@ -61,6 +61,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
     try {
       const success = await window.settings.changeMasterPassword(oldPass, newPass)
       if (success) {
+        useMasterPasswordStore.getState().setSessionKey(success.key.toString('base64'))
         setShowChangePassModal(false)
         setOldPass('')
         setNewPass('')

@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import { deriveKey } from '../vault/crypto'
 import { VAULT_PATH, VaultData } from '../vault/vaultUnlock'
 import { decryptSecrets, encryptSecrets } from '../vault/vaultStore'
-import { useMasterPasswordStore } from '../renderer/src/stores/masterPasswordStore'
 import { Secret } from '../types/vault'
 
 /**
@@ -15,10 +14,10 @@ import { Secret } from '../types/vault'
 export async function changeMasterPassword(
   oldPassword: string,
   newPassword: string
-): Promise<boolean> {
+): Promise<{ key: Buffer } | null> {
   try {
     if (!fs.existsSync(VAULT_PATH)) {
-      return false
+      return null
     }
 
     const vault: VaultData = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf-8'))
@@ -40,10 +39,10 @@ export async function changeMasterPassword(
       const decryptedVerifier = Buffer.concat([decipher.update(encrypted), decipher.final()])
 
       if (decryptedVerifier.toString() !== 'vault-check') {
-        return false
+        return null
       }
     } catch {
-      return false
+      return null
     }
 
     // Step 2: Use session key for decryption
@@ -55,7 +54,7 @@ export async function changeMasterPassword(
       try {
         secrets = decryptSecrets(oldKey, vault.secretsEncrypted)
       } catch {
-        return false
+        return null
       }
     }
 
@@ -64,7 +63,6 @@ export async function changeMasterPassword(
     //create new key same as in unlock mechanism
     const newSalt = crypto.randomBytes(16)
     const newKey = await deriveKey(newPassword, newSalt)
-    useMasterPasswordStore.getState().setSessionKey(newKey.toString('base64'))
 
     // Step 4: Create new verifier with new key
 
@@ -95,8 +93,8 @@ export async function changeMasterPassword(
     // Step 7: Save to disk
     fs.writeFileSync(VAULT_PATH, JSON.stringify(vault, null, 2), 'utf-8')
 
-    return true
+    return { key: newKey }
   } catch {
-    return false
+    return null
   }
 }
