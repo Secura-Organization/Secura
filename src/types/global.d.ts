@@ -11,7 +11,8 @@ declare global {
       ) => Promise<Secret>
       editSecret: (password: string, secret: Secret) => Promise<void>
       deleteSecret: (password: string, secretId: string) => Promise<void>
-      downloadVault: () => Promise<void>
+      downloadVault: () => Promise<boolean>
+      importVault: () => Promise<boolean>
     }
     settings: {
       get: () => Promise<AppSettings>

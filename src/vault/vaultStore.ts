@@ -1,7 +1,7 @@
 import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
-import { app } from 'electron'
+import { app, dialog } from 'electron'
 import type { Secret } from '../types/vault'
 import type { VaultData } from './vaultUnlock'
 
@@ -139,5 +139,32 @@ export const vaultStore = {
     }
 
     fs.copyFileSync(VAULT_PATH, destination)
+    return true
+  },
+
+  async importVault() {
+    const result = await dialog.showOpenDialog({
+      title: 'Select file to import',
+      properties: ['openFile'],
+      filters: [{ name: 'JSON Files', extensions: ['json'] }]
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return false
+    }
+
+    const sourcePath = result.filePaths[0]
+
+    // Ensure destination directory exists
+    fs.mkdirSync(path.dirname(VAULT_PATH), { recursive: true })
+
+    // Validate JSON
+    const raw = fs.readFileSync(sourcePath, 'utf-8')
+    JSON.parse(raw)
+
+    // Write content
+    fs.writeFileSync(VAULT_PATH, raw, 'utf-8')
+
+    return true
   }
 }

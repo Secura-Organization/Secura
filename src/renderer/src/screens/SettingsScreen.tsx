@@ -41,6 +41,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
   const [showOldPass, setShowOldPass] = useState(false)
   const [showNewPass, setShowNewPass] = useState(false)
   const [showConfirmPass, setShowConfirmPass] = useState(false)
+  const [showExportSuccess, setShowExportSuccess] = useState(false)
 
   const sessionKey = useMasterPasswordStore.getState().sessionKey as string
   console.log('Frontend - Session key:', sessionKey)
@@ -190,7 +191,17 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
             {/* Export Vault */}
             <button
               className="card-elevated rounded-lg p-4 w-full hover:bg-muted/30 transition-fast"
-              onClick={async () => await window.vault.downloadVault()}
+              onClick={async () => {
+                try {
+                  const success = await window.vault.downloadVault()
+                  if (success) {
+                    setShowExportSuccess(true)
+                    setTimeout(() => setShowExportSuccess(false), 2000)
+                  }
+                } catch {
+                  return
+                }
+              }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -235,6 +246,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
           </section>
         </div>
       </div>
+
       {/* --- Overlay Modal --- */}
       {showChangePassModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -316,6 +328,28 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
               <Button onClick={handleChangePassword} disabled={loading}>
                 {loading ? 'Changing...' : 'Change Password'}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExportSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background card-elevated rounded-lg p-6 w-96 space-y-4 text-center">
+            <div className="flex justify-center">
+              <div className="p-3 rounded-full bg-green-500/10">
+                <Download className="text-green-500" size={28} />
+              </div>
+            </div>
+
+            <h2 className="text-lg font-semibold">Export Successful</h2>
+
+            <p className="text-sm text-muted-foreground">
+              Your vault was exported successfully to your Desktop.
+            </p>
+
+            <div className="flex justify-center pt-2">
+              <Button onClick={() => setShowExportSuccess(false)}>OK</Button>
             </div>
           </div>
         </div>

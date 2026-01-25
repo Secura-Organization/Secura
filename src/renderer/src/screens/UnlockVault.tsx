@@ -1,5 +1,5 @@
 import { JSX, useState } from 'react'
-import { Eye, EyeOff, Lock, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Lock, AlertCircle, Import } from 'lucide-react'
 import { Button } from '../components/ui/button/button'
 import { Input } from '../components/ui/input'
 import { VaultLogo } from '../components/VaultLogo'
@@ -15,6 +15,7 @@ export function UnlockScreen(): JSX.Element {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [showImportSuccess, setShowImportSuccess] = useState(false)
 
   const navigate = useNavigate()
 
@@ -104,6 +105,27 @@ export function UnlockScreen(): JSX.Element {
               )}
             </Button>
           </form>
+
+          {/* Import Vault Button */}
+          <div className="flex items-center justify-center">
+            <button
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 px-4 rounded-lg hover:bg-muted"
+              onClick={async () => {
+                try {
+                  const success = await window.vault.importVault()
+                  if (success) {
+                    setShowImportSuccess(true)
+                    setTimeout(() => setShowImportSuccess(false), 2000)
+                  }
+                } catch {
+                  return
+                }
+              }}
+            >
+              <Import size={18} />
+              <span>Import Vault</span>
+            </button>
+          </div>
         </div>
 
         {/* Security Notice */}
@@ -125,6 +147,26 @@ export function UnlockScreen(): JSX.Element {
           </div>
         </div>
       </div>
+
+      {showImportSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background card-elevated rounded-lg p-6 w-96 space-y-4 text-center">
+            <div className="flex justify-center">
+              <div className="p-3 rounded-full bg-green-500/10">
+                <Import className="text-green-500" size={28} />
+              </div>
+            </div>
+
+            <h2 className="text-lg font-semibold">Import Successful</h2>
+
+            <p className="text-sm text-muted-foreground">Your vault was imported successfully.</p>
+
+            <div className="flex justify-center pt-2">
+              <Button onClick={() => setShowImportSuccess(false)}>OK</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
