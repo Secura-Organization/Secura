@@ -4,6 +4,7 @@
   "description": "Secura Password Manager",
   "main": "./out/main/index.js",
   "author": "secura.app",
+  "homepage": "https://secura.vercel.app",
   "build": {
     "appId": "com.secura.app",
     "productName": "Secura",
@@ -26,10 +27,10 @@
       "icon": "resources/icons",
       "target": [
         "AppImage",
-        "deb",
-        "rpm"
+        "deb"
       ],
-      "category": "Utility"
+      "category": "Utility",
+      "maintainer": "Julien Zghendi julien.zghendi@hotmail.com"
     }
   },
   "nsis": {
