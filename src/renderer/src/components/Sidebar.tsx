@@ -56,7 +56,7 @@ export function Sidebar({
       </div>
 
       {/* Navigation (scrollable) */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-thin">
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin">
         {categories.map((category) => {
           const Icon = category.icon
           const isActive = activeCategory === category.id
@@ -97,7 +97,7 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Footer Actions (always visible) */}
+      {/* Footer Actions (always visible at bottom) */}
       <div className="p-3 border-t border-sidebar-border flex-shrink-0 flex flex-col space-y-1 bg-sidebar">
         <button onClick={onSettingsClick} className="sidebar-item w-full justify-start gap-3">
           <Settings size={18} className="text-muted-foreground" />
