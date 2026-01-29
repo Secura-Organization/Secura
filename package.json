@@ -4,7 +4,7 @@
   "description": "Secura Password Manager",
   "main": "./out/main/index.js",
   "author": "secura.app",
-  "homepage": "https://secura.vercel.app",
+  "homepage": "https://app-secura.vercel.app/",
   "build": {
     "appId": "com.secura.app",
     "productName": "Secura",
