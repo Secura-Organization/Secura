@@ -147,11 +147,3 @@ npm run package
 | VaultSettings  | user preferences |
 | ViewMode       | 'list' or 'details' |
 | Category       | secret filter categories |
-
----
-## License
-
-
-This README provides a **comprehensive overview** of your project: architecture, features, folder structure, key components, screens, types, and vault backend.  
-
-I can also generate a **shorter, “developer quickstart” version** optimized for new contributors if you want. Do you want me to do that?
