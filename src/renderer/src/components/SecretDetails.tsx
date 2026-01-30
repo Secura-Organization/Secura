@@ -16,7 +16,6 @@ import { SecretTypeIcon } from './SecretTypeIcon'
 import { getSecretTypeLabel } from '../utils/secretTypes'
 import type { Secret } from '../../../types/vault'
 import { format } from 'date-fns'
-import { useMasterPasswordStore } from '../stores/masterPasswordStore'
 import { useSettingsStore } from '../stores/settingsStore'
 
 interface SecretDetailsProps {
@@ -92,10 +91,7 @@ export function SecretDetails({ secret, onEdit, onDelete }: SecretDetailsProps):
               variant="ghost"
               size="icon"
               onClick={async () => {
-                await window.vault.deleteSecret(
-                  useMasterPasswordStore.getState().sessionKey as string,
-                  secret.id
-                )
+                await window.vault.deleteSecret(secret.id)
                 onDelete()
               }}
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"

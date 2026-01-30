@@ -19,7 +19,6 @@ import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
 import { Label } from '../components/ui/label'
 import type { Secret, SecretType } from '../../../types/vault'
-import { useMasterPasswordStore } from '../stores/masterPasswordStore'
 
 interface AddEditSecretModalProps {
   isOpen: boolean
@@ -92,7 +91,7 @@ export function AddEditSecretModal({
     e.preventDefault()
     if (!validateForm()) return
     if (editingSecret) {
-      await window.vault.editSecret(useMasterPasswordStore.getState().sessionKey as string, {
+      await window.vault.editSecret({
         ...editingSecret,
         name,
         type,
@@ -102,7 +101,7 @@ export function AddEditSecretModal({
         notes
       })
     } else {
-      await window.vault.addSecret(useMasterPasswordStore.getState().sessionKey as string, {
+      await window.vault.addSecret({
         name,
         type,
         value,

@@ -13,7 +13,8 @@ export function UnlockScreen(): JSX.Element {
 
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState('')
+  const [isCountingDown, setIsCountingDown] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showImportSuccess, setShowImportSuccess] = useState(false)
 
@@ -26,11 +27,26 @@ export function UnlockScreen(): JSX.Element {
 
     const result = await window.vault.unlock(password)
 
-    if (!result) {
-      setError('Wrong master password')
+    if (!result.success) {
+      if (result.waitTime) {
+        let remaining = Math.ceil(result.waitTime / 1000)
+
+        const interval = setInterval(() => {
+          remaining -= 1
+          if (remaining <= 0) {
+            clearInterval(interval)
+            setIsCountingDown(false)
+            setError('You can try again now.')
+          } else {
+            setIsCountingDown(true)
+            setError(`Too many attempts. Try again in ${remaining}s`)
+          }
+        }, 1000)
+      } else {
+        setError('Wrong password')
+      }
     } else {
-      const keyBase64 = result.key.toString('base64') // convert Buffer → string
-      useMasterPasswordStore.getState().setSessionKey(keyBase64)
+      useMasterPasswordStore.getState().setUnlocked(true)
       navigate('/vault')
     }
     setIsLoading(false)
@@ -93,7 +109,7 @@ export function UnlockScreen(): JSX.Element {
             <Button
               type="submit"
               className="w-full h-11 font-medium"
-              disabled={!password || isLoading}
+              disabled={!password || isLoading || isCountingDown}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

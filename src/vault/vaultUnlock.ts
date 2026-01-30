@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { deriveKey } from './crypto'
 import type { Secret } from '../types/vault'
+import { setSessionKey } from './vaultSession'
 
 export const VAULT_PATH = path.join(app.getPath('userData'), 'vault.json')
 
@@ -19,7 +20,7 @@ export interface VaultData {
  * @param password The master password entered by the user
  * @returns key if unlock or setup succeeds, null otherwise
  */
-export async function unlockVault(password: string): Promise<{ key: Buffer } | null> {
+export async function unlockVault(password: string): Promise<boolean> {
   // --- First-time setup
   if (!fs.existsSync(VAULT_PATH)) {
     // console.log('Vault file not found. Creating a new vault...')
@@ -43,10 +44,11 @@ export async function unlockVault(password: string): Promise<{ key: Buffer } | n
 
       fs.writeFileSync(VAULT_PATH, JSON.stringify(vaultData, null, 2), 'utf-8')
       // console.log('Vault successfully created!')
-      return { key }
+      setSessionKey(key)
+      return true
     } catch {
       // console.error('Failed to create vault:', err)
-      return null
+      return false
     }
   }
 
@@ -67,10 +69,11 @@ export async function unlockVault(password: string): Promise<{ key: Buffer } | n
     const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()])
     const unlocked = decrypted.toString() === 'vault-check'
 
-    if (!unlocked) return null
-    return { key }
+    if (!unlocked) return false
+    setSessionKey(key)
+    return true
   } catch {
     // console.error('Failed to unlock vault:', err)
-    return null
+    return false
   }
 }

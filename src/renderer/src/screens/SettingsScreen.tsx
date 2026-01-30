@@ -22,7 +22,6 @@ import {
 import { JSX, useState } from 'react'
 import { useSettingsStore } from '../stores/settingsStore'
 import { Input } from '../components/ui/input'
-import { useMasterPasswordStore } from '../stores/masterPasswordStore'
 
 interface SettingsScreenProps {
   onBack: () => void
@@ -43,13 +42,6 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
   const [showConfirmPass, setShowConfirmPass] = useState(false)
   const [showExportSuccess, setShowExportSuccess] = useState(false)
 
-  const sessionKey = useMasterPasswordStore.getState().sessionKey as string
-  console.log('Frontend - Session key:', sessionKey)
-
-  if (!sessionKey) {
-    console.error('No session key available!')
-  }
-
   const handleChangePassword = async (): Promise<void> => {
     if (newPass !== confirmPass) {
       setValid(false)
@@ -61,7 +53,6 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
     try {
       const success = await window.settings.changeMasterPassword(oldPass, newPass)
       if (success) {
-        useMasterPasswordStore.getState().setSessionKey(success.key.toString('base64'))
         setShowChangePassModal(false)
         setOldPass('')
         setNewPass('')
