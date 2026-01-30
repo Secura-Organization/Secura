@@ -22,14 +22,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 contextBridge.exposeInMainWorld('vault', {
   unlock: (password: string) => ipcRenderer.invoke('vault:unlock', password),
-  getSecrets: (password: string) =>
-    ipcRenderer.invoke('vault:getSecrets', password) as Promise<Secret[]>,
-  addSecret: (password: string, secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>) =>
-    ipcRenderer.invoke('vault:addSecret', password, secret) as Promise<Secret>,
-  editSecret: (password: string, secret: Secret) =>
-    ipcRenderer.invoke('vault:editSecret', password, secret) as Promise<void>,
-  deleteSecret: (password: string, secretId: string) =>
-    ipcRenderer.invoke('vault:deleteSecret', password, secretId) as Promise<void>,
+  getSecrets: () => ipcRenderer.invoke('vault:getSecrets') as Promise<Secret[]>,
+  addSecret: (secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>) =>
+    ipcRenderer.invoke('vault:addSecret', secret) as Promise<Secret>,
+  editSecret: (secret: Secret) => ipcRenderer.invoke('vault:editSecret', secret) as Promise<void>,
+  deleteSecret: (secretId: string) =>
+    ipcRenderer.invoke('vault:deleteSecret', secretId) as Promise<void>,
   downloadVault: () => ipcRenderer.invoke('vault:download') as Promise<boolean>,
   importVault: () => ipcRenderer.invoke('vault:import') as Promise<boolean>
 })
@@ -37,6 +35,6 @@ contextBridge.exposeInMainWorld('vault', {
 contextBridge.exposeInMainWorld('settings', {
   get: () => ipcRenderer.invoke('settings:get'),
   set: (settings) => ipcRenderer.invoke('settings:set', settings),
-  changeMasterPassword: (oldPass: string, newPass: string): Promise<{ key: Buffer } | null> =>
+  changeMasterPassword: (oldPass: string, newPass: string): Promise<boolean> =>
     ipcRenderer.invoke('settings:changeMasterPass', oldPass, newPass)
 })

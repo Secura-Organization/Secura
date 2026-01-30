@@ -6,6 +6,8 @@ import { unlockVault } from '../vault/vaultUnlock'
 import { vaultStore } from '../vault/vaultStore'
 import { loadSettings, saveSettings } from '../settings/settings'
 import { changeMasterPassword } from '../settings/changeMasterPass'
+import { clearSessionKey } from '../vault/vaultSession'
+import { unlockVaultWithRateLimit } from '../vault/vaultRateLimiter'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -59,20 +61,18 @@ function createWindow(): BrowserWindow {
 
   mainWindow.on('minimize', () => {
     mainWindow.webContents.send('system-lock')
+    clearSessionKey()
   })
 
   // --- System Lock / Unlock Detection ---
   powerMonitor.on('lock-screen', () => {
     mainWindow.webContents.send('system-lock') // notify renderer to lock vault
+    clearSessionKey()
   })
 
   powerMonitor.on('suspend', () => {
     mainWindow.webContents.send('system-lock')
-  })
-
-  // optional: unlock event if you want to notify
-  powerMonitor.on('unlock-screen', () => {
-    console.log('System unlocked')
+    clearSessionKey()
   })
 
   return mainWindow
@@ -96,18 +96,14 @@ ipcMain.on('window-close', () => {
 })
 
 // --- Vault IPC ---
-ipcMain.handle('vault:unlock', (_, password) => unlockVault(password))
-ipcMain.handle('vault:getSecrets', async (_event, password: string) =>
-  vaultStore.getSecrets(password)
-)
-ipcMain.handle('vault:addSecret', async (_event, password: string, secret) =>
-  vaultStore.addSecret(password, secret)
-)
-ipcMain.handle('vault:editSecret', async (_event, password: string, secret) =>
-  vaultStore.editSecret(password, secret)
-)
-ipcMain.handle('vault:deleteSecret', async (_event, password: string, secretId: string) =>
-  vaultStore.deleteSecret(password, secretId)
+ipcMain.handle('vault:unlock', async (_, password: string) => {
+  return unlockVaultWithRateLimit(password)
+})
+ipcMain.handle('vault:getSecrets', async () => vaultStore.getSecrets())
+ipcMain.handle('vault:addSecret', async (_event, secret) => vaultStore.addSecret(secret))
+ipcMain.handle('vault:editSecret', async (_event, secret) => vaultStore.editSecret(secret))
+ipcMain.handle('vault:deleteSecret', async (_event, secretId: string) =>
+  vaultStore.deleteSecret(secretId)
 )
 ipcMain.handle('vault:download', async () => {
   return vaultStore.downloadVault()
@@ -139,7 +135,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.on('ping', () => console.log('pong'))
+  // ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
 
@@ -154,4 +150,5 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   clipboard.writeText('') // clear clipboard on exit
+  clearSessionKey()
 })

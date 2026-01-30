@@ -6,21 +6,18 @@ declare global {
     electron: typeof import('../../preload').mergedElectronAPI
     api: unknown
     vault: {
-      unlock: (password: string) => Promise<{ key: Buffer } | null>
-      getSecrets: (password: string) => Promise<Secret[]>
-      addSecret: (
-        password: string,
-        secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>
-      ) => Promise<Secret>
-      editSecret: (password: string, secret: Secret) => Promise<void>
-      deleteSecret: (password: string, secretId: string) => Promise<void>
+      unlock: (password: string) => Promise<{ success: boolean; waitTime?: number }>
+      getSecrets: () => Promise<Secret[]>
+      addSecret: (secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>) => Promise<Secret>
+      editSecret: (secret: Secret) => Promise<void>
+      deleteSecret: (secretId: string) => Promise<void>
       downloadVault: () => Promise<boolean>
       importVault: () => Promise<boolean>
     }
     settings: {
       get: () => Promise<AppSettings>
       set: (settings: AppSettings) => Promise<void>
-      changeMasterPassword: (oldPass: string, newPass: string) => Promise<{ key: Buffer } | null>
+      changeMasterPassword: (oldPass: string, newPass: string) => Promise<boolean>
     }
   }
 }

@@ -7,7 +7,6 @@ import { SettingsScreen } from './SettingsScreen'
 import { AddEditSecretModal } from '../components/AddEditSecretModal'
 import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog'
 import type { Secret, Category } from '../../../types/vault'
-import { useMasterPasswordStore } from '../stores/masterPasswordStore'
 
 const secretTypes: { id: Category; label: string }[] = [
   { id: 'all', label: 'All Secrets' },
@@ -36,9 +35,7 @@ export function VaultScreen(): JSX.Element {
 
   useEffect(() => {
     const loadSecrets = async (): Promise<void> => {
-      const secrets = await window.vault.getSecrets(
-        useMasterPasswordStore.getState().sessionKey as string
-      )
+      const secrets = await window.vault.getSecrets()
       setSecrets(secrets)
     }
 
@@ -205,9 +202,7 @@ export function VaultScreen(): JSX.Element {
             secret={selectedSecret}
             onEdit={() => setEditingSecret(selectedSecret)}
             onDelete={async (): Promise<void> => {
-              const secrets = await window.vault.getSecrets(
-                useMasterPasswordStore.getState().sessionKey as string
-              )
+              const secrets = await window.vault.getSecrets()
               setSecrets(secrets)
             }}
           />
@@ -225,9 +220,7 @@ export function VaultScreen(): JSX.Element {
           setEditingSecret(null)
         }}
         onSave={async (): Promise<void> => {
-          const secrets = await window.vault.getSecrets(
-            useMasterPasswordStore.getState().sessionKey as string
-          )
+          const secrets = await window.vault.getSecrets()
           setSecrets(secrets)
         }}
         editingSecret={editingSecret}

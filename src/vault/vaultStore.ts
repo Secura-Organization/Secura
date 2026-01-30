@@ -4,6 +4,7 @@ import * as path from 'path'
 import { app, dialog } from 'electron'
 import type { Secret } from '../types/vault'
 import type { VaultData } from './vaultUnlock'
+import { getSessionKey } from './vaultSession'
 
 const VAULT_PATH = path.join(app.getPath('userData'), 'vault.json')
 
@@ -55,9 +56,9 @@ export const vaultStore = {
   /**
    * Get all secrets
    */
-  async getSecrets(password: string): Promise<Secret[]> {
+  async getSecrets(): Promise<Secret[]> {
     const vault = readVaultFile()
-    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
+    const key = getSessionKey()
 
     if (!vault.secretsEncrypted) return vault.secrets || []
 
@@ -67,12 +68,9 @@ export const vaultStore = {
   /**
    * Add a new secret
    */
-  async addSecret(
-    password: string,
-    secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>
-  ): Promise<Secret> {
+  async addSecret(secret: Omit<Secret, 'id' | 'createdAt' | 'lastAccessed'>): Promise<Secret> {
     const vault = readVaultFile()
-    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
+    const key = getSessionKey()
 
     const newSecret: Secret = {
       ...secret,
@@ -96,9 +94,9 @@ export const vaultStore = {
   /**
    * Edit an existing secret
    */
-  async editSecret(password: string, updatedSecret: Secret) {
+  async editSecret(updatedSecret: Secret) {
     const vault = readVaultFile()
-    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
+    const key = getSessionKey()
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)
@@ -116,9 +114,9 @@ export const vaultStore = {
   /**
    * Delete a secret
    */
-  async deleteSecret(password: string, secretId: string) {
+  async deleteSecret(secretId: string) {
     const vault = readVaultFile()
-    const key = Buffer.from(password.split(',').map((n) => parseInt(n)))
+    const key = getSessionKey()
 
     const secrets = vault.secretsEncrypted
       ? decryptSecrets(key, vault.secretsEncrypted)
