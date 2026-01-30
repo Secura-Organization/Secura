@@ -231,7 +231,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps): JSX.Element {
                 </p>
               </div>
               <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                <span>Secura v1.0.0</span>
+                <span>Secura v2.0.0</span>
                 <span>© {new Date().getFullYear()}</span>
               </div>
             </div>
