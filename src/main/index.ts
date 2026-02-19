@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain, clipboard, powerMonitor } from 'ele
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icons/icon.png?asset'
-import { unlockVault } from '../vault/vaultUnlock'
 import { vaultStore } from '../vault/vaultStore'
 import { loadSettings, saveSettings } from '../settings/settings'
 import { changeMasterPassword } from '../settings/changeMasterPass'
