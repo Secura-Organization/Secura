@@ -12,7 +12,8 @@ import {
   Wifi,
   Globe,
   KeySquare,
-  SquareAsterisk
+  SquareAsterisk,
+  WandSparkles
 } from 'lucide-react'
 import { Button } from '../components/ui/button/button'
 import { Input } from '../components/ui/input'
@@ -116,6 +117,29 @@ export function AddEditSecretModal({
 
   const strength = type === 'password' ? getPasswordStrength(value) : null
 
+  const generateStrongPassword = (): void => {
+    const lowerCase = 'abcdefghijklmnopqrstuvwxyz'.split('')
+    const upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+    const specialChars = '!@#$%^&*()_-+=[{]}|\\\'";:/?.>,<`~'.split('')
+    const numbers = '1234567890'.split('')
+    const allChars = [...lowerCase, ...upperCase, ...specialChars, ...numbers]
+
+    const password = [
+      lowerCase[Math.floor(Math.random() * lowerCase.length)],
+      upperCase[Math.floor(Math.random() * upperCase.length)],
+      numbers[Math.floor(Math.random() * numbers.length)],
+      specialChars[Math.floor(Math.random() * specialChars.length)]
+    ]
+
+    // Fill the rest randomly
+    for (let i = 4; i < 20; i++) {
+      password.push(allChars[Math.floor(Math.random() * allChars.length)])
+    }
+
+    setValue(password.sort(() => Math.random() - 0.5).join(''))
+    setShowValue(true)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
@@ -216,15 +240,30 @@ export function AddEditSecretModal({
                   type={showValue ? 'text' : 'password'}
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  className={`pr-10 font-mono ${errors.value ? 'border-destructive' : ''}`}
+                  /* Increased right padding (pr-20) to make room for two icons */
+                  className={`pr-20 font-mono ${errors.value ? 'border-destructive' : ''}`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowValue((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  {showValue ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+
+                {/* Container for both icons */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-muted-foreground">
+                  <button
+                    type="button"
+                    onClick={() => setShowValue((v) => !v)}
+                    className="hover:text-foreground transition-colors"
+                    title={showValue ? 'Hide Password' : 'Show Password'}
+                  >
+                    {showValue ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={generateStrongPassword}
+                    className="hover:text-foreground transition-colors"
+                    title="Generate Password"
+                  >
+                    <WandSparkles size={16} />
+                  </button>
+                </div>
               </div>
             )}
             {errors.value && <p className="text-xs text-destructive">{errors.value}</p>}

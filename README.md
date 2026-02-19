@@ -8,6 +8,7 @@ Secura is an Electron-based secure vault application for managing passwords and 
 
 - [Features](#features)  
 - [Architecture](#architecture)  
+- [Security Model (Important)](#security-model-important)  
 - [Getting Started](#getting-started)  
 - [Project Structure](#project-structure)  
 - [Vault Backend](#vault-backend)  
@@ -22,12 +23,12 @@ Secura is an Electron-based secure vault application for managing passwords and 
 ## Features
 
 - **Secure vault** with AES-256-GCM encryption  
-- **Master password** unlock with session storage  
+- **Master password** unlock with secure in-memory session (main process)  
 - CRUD operations for secrets: add, edit, delete  
 - Categorized secrets with search and filter  
 - Custom **frameless window** with title bar controls  
 - Radix + Tailwind UI primitives (buttons, inputs, switches, modals)  
-- Auto-lock, clipboard timeout
+- Auto-lock, clipboard timeout  
 - React Router-based navigation  
 
 ---
@@ -45,23 +46,43 @@ flowchart LR
 
 ---
 
-## Core flow:
-1. User enters master password
-2. Renderer calls vault.unlock
-3. Main process invokes unlockVault
-4. Returns session key → stored in Zustand
-5. Renderer fetches secrets → displays in UI
+## Security Model (Important)
+
+Secura is designed so that **all encryption/decryption and session key handling happen inside the Electron Main Process**, not inside the renderer.
+
+- The renderer **never receives the raw session key**
+- The renderer only calls high-level vault APIs exposed through the preload layer (`window.vault.*`)
+- The main process holds the derived key in memory and performs:
+  - vault unlock
+  - encryption/decryption
+  - read/write operations
+- The renderer only receives already-decrypted secret data needed for UI rendering
+
+This reduces the attack surface in case the renderer is compromised (XSS, dependency injection, devtools, etc.).
+
+---
+
+## Core flow
+
+1. User enters master password in the renderer
+2. Renderer calls `vault.unlock(...)` via preload API
+3. Main process invokes `unlockVault(...)`
+4. Main process derives and stores the session key **in-memory**
+5. Renderer requests secrets through vault APIs
+6. Main process decrypts secrets and returns safe data to the renderer → displayed in UI
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js >= 18
 - npm or yarn
 - Electron-compatible OS
 
 ### Installation
+
 ```bash
 git clone https://github.com/yourusername/secura.git
 cd secura
@@ -69,12 +90,14 @@ npm install
 ```
 
 ### Running
+
 ```bash
 # Start Electron app
 npm run dev
 ```
 
 ### Build
+
 ```bash
 npm run build
 npm run package
@@ -85,19 +108,23 @@ npm run package
 ## Project Structure
 
 ### Main Process
+
 - `src/main/index.ts` – Entry point, creates frameless window, sets up IPC channels for vault operations and window controls, manages app lifecycle.
 
 ### Preload
+
 - `src/preload/index.ts` – Bridges main and renderer safely using `contextBridge`.
 - `src/preload/index.d.ts` – TypeScript types for `window.electronAPI` and `window.vault`.
 
 ### Renderer
+
 - `src/renderer/src/main.tsx` – Entrypoint rendering `<App>` with `HashRouter`.
 - `src/renderer/index.html` – HTML scaffold for root div.
 
 ---
 
 ## Vault Backend
+
 - `crypto.ts` – Key derivation via Argon2id (310k iterations)
 - `vaultUnlock.ts` – Initial vault setup & unlock logic
 - `vaultStore.ts` – CRUD operations: read, write, encrypt, decrypt secrets
@@ -106,12 +133,12 @@ npm run package
 
 ## UI Components
 
-### Primitives (src/renderer/src/components/ui)
+### Primitives (`src/renderer/src/components/ui`)
 
 - **Button** – styled with variants (size, intent, disabled, ghost)  
 - **Input / Textarea / Label / Select / Switch** – Tailwind + Radix  
 - **Icons** – Maps secret type to Lucide icons  
-- **Modals & Dialogs**  
+- **Modals & Dialogs**
   - **AddEditSecretModal** – add/edit secret with validation & password strength  
   - **DeleteConfirmDialog** – confirm deletion  
   - **CustomTitleBar** – frameless window controls  
@@ -123,22 +150,28 @@ npm run package
 - **Sidebar** – category navigation + settings + lock vault  
 - **VaultLogo** – branding component  
 
-### Screens
+---
+
+## Screens
 
 - **UnlockVault.tsx** – Master password entry, unlock logic  
 - **VaultScreen.tsx** – Main vault UI: sidebar, secret list, secret details  
 - **SettingsScreen.tsx** – Preferences: auto-lock, clipboard timeout, biometric toggle  
 
-### Utilities & Stores
+---
 
-- **utils.ts** – helper functions (e.g., cn for classNames)  
-- **masterPasswordStore.ts** – Zustand store: sessionKey & unlocked state  
-- **secretTypes.ts** – Maps secret types to human-readable labels  
+## Utilities & Stores
 
-### Types
+- `utils.ts` – helper functions (e.g., `cn` for classNames)  
+- `masterPasswordStore.ts` – Zustand store: vault unlocked state (no raw session key in renderer)  
+- `secretTypes.ts` – Maps secret types to human-readable labels  
 
-- **global.d.ts** – Extends global Window with electron & vault  
-- **vault.ts** – Core vault types:
+---
+
+## Types
+
+- `global.d.ts` – Extends global Window with electron & vault  
+- `vault.ts` – Core vault types:
 
 | Type           | Description |
 |----------------|-------------|
@@ -147,4 +180,3 @@ npm run package
 | VaultSettings  | user preferences |
 | ViewMode       | 'list' or 'details' |
 | Category       | secret filter categories |
-
